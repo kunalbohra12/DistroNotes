@@ -6,19 +6,24 @@
 //
 
 import SwiftUI
-
 struct ContentView: View {
+    @ObservedObject var router: Router
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack(path: $router.path) {
+            CustomerNotesView()
+                .navigationDestination(for: Route.self) { route in
+                    switch route {
+                    case .AddNotes:
+                        AddNotesView()
+                    case .EditNotes:
+                        EditNotesView()
+                    case .CustomerNotesView:
+                        CustomerNotesView()
+                    }
+                }
         }
-        .padding()
+        .environmentObject(router)
+
     }
 }
 
-#Preview {
-    ContentView()
-}

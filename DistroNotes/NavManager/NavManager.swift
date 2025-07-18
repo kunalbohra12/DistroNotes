@@ -7,12 +7,10 @@
 
 import Foundation
 enum Route: Hashable {
-    case Splash
-    case SignUp
-    case Login
-    case Home
-    case TabBar
-    case Onboarding
+    case EditNotes
+    case AddNotes
+    case CustomerNotesView
+
 }
 
 import SwiftUI
