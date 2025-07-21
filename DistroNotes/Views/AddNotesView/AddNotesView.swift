@@ -7,24 +7,19 @@
 
 import SwiftUI
 import PhotosUI
-struct NoteData: Identifiable {
-    var id: UUID = UUID()
-    var notesTx: String
-    var notestype:String
-}
+
 struct AddNotesView: View {
-    @State var message = ""
     @State private var selectedImages: [UIImage] = []
-    @State var selectedText = "Select an option"
+    @State var selectedTxt = "Select an option"
     @State var isDropdown: Bool = false
     @State var showImagePicker: Bool = false
-    @State  var textHeight: CGFloat = 100
-    let maxLines: Int = 10
     @State var noteTxt = ""
-    let options = ["For Driver", "For Manager", "For Office", "General"]
     @EnvironmentObject var router: Router
-    var isFormValid: Bool{
-        selectedText != nil || noteTxt.isEmpty
+    @EnvironmentObject var viewModel : NotesViewModel
+    @State var isEditing: Bool
+    let note :NotesData?
+    var isFormValid: Bool {
+        selectedTxt != nil && !noteTxt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     var body: some View {
         VStack{
@@ -37,7 +32,7 @@ struct AddNotesView: View {
                             .resizable()
                             .frame(width:24,height:24)
                     }
-                    Text("Add New Note")
+                    Text(isEditing ? "Edit Notes" : "Add Notes")
                         .foregroundStyle(.darkBlue)
                         .font(.system(size:20,weight: .medium))
                     Spacer()
@@ -68,7 +63,7 @@ struct AddNotesView: View {
                     .font(.system(size:14,weight: .medium))
                     .foregroundStyle(.darkBlue)
                 HStack{
-                    Text(selectedText == "" ? "Select Note Subject" : selectedText)
+                    Text(selectedTxt == "" ? "Select Note Subject" : selectedTxt)
                         .font(.system(size: 16,weight: .medium))
                         .foregroundStyle(.grey)
                     Spacer()
@@ -96,6 +91,7 @@ struct AddNotesView: View {
                             .foregroundStyle(.darkBlue)
                         TextEditor(text: $noteTxt)
                             .frame(maxWidth:.infinity,maxHeight: 100)
+                            .padding(.horizontal,10)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
                                     .stroke(.grey, lineWidth: 1)
@@ -103,20 +99,26 @@ struct AddNotesView: View {
                     }
                     .padding(.top,10)
                     if isDropdown {
-                        DropDownView(selectedText: $selectedText, isDropDown: $isDropdown)
+                        DropDownView(selectedText: $selectedTxt, isDropDown: $isDropdown)
                             .padding(.top,10)
-
                     }
                 }
                 .background(.white)
                 HStack{
-                    ForEach(selectedImages, id: \.self) { image in
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 100, height: 100)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    ScrollView(.horizontal, showsIndicators: false){
+                        HStack{
+                            ForEach(selectedImages, id: \.self) { image in
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 100, height: 100)
+                                
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .padding(.horizontal,20)
+                            }
+                        }
                     }
+                    
                 }
               
                 HStack{
@@ -141,7 +143,19 @@ struct AddNotesView: View {
                 }
                 .padding(.top,5)
               
-                Button(action:{}){
+                Button(action:{
+                        if isEditing {
+                            if let note = note {
+                                viewModel.updateNote(id: note.id, newTitle: noteTxt, newType: selectedTxt)
+                            }
+                        } else {
+                            viewModel.addNote(title: noteTxt, type: selectedTxt)
+                        }
+
+
+                    router.popToView()
+                    print("\(viewModel.notesData)")
+                }){
                     HStack{
                         Text("Submit")
                             .foregroundStyle(Color.white)
@@ -165,10 +179,19 @@ struct AddNotesView: View {
         .frame(maxWidth:.infinity,maxHeight: .infinity)
         .background(.white)
         .navigationBarBackButtonHidden(true)
-        
-    
+        .onAppear{
+            if isEditing{
+                selectedTxt = note?.type ?? ""
+                noteTxt = note?.title ?? ""
+            }else{
+                selectedTxt = "select a Option"
+                noteTxt = ""
+
+            }
+        }
     }
+        
 }
-#Preview {
-    AddNotesView()
-}
+//#Preview {
+//    AddNotesView(isEditing: true)
+//}

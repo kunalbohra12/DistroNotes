@@ -7,10 +7,9 @@
 
 import Foundation
 enum Route: Hashable {
-    case EditNotes
-    case AddNotes
+    case EditNotes(NotesData)
+    case AddNotes(isEditing: Bool, note: NotesData?)
     case CustomerNotesView
-
 }
 
 import SwiftUI

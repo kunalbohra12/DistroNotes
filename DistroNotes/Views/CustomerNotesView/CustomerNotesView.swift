@@ -8,8 +8,8 @@
 import SwiftUI
 struct CustomerNotesView: View {
     @State var searchTxt = ""
-    let notesData = ["1","2","3","4","5","6","7","8","9","10"]
     @EnvironmentObject var router: Router
+    @EnvironmentObject var viewModel : NotesViewModel
     @State var selectedItem : String? = nil
         var body: some View {
         VStack{
@@ -49,9 +49,8 @@ struct CustomerNotesView: View {
                         .font(.system(size: 18,weight: .semibold))
                         .foregroundStyle(.black)
                     Spacer()
-                    Button(action:{}){
                         Button(action:{
-                            router.navigate(to: .AddNotes)
+                            router.navigate(to: .AddNotes(isEditing:false, note: nil))
                         }){
                             HStack{
                                 Text("Add New Note")
@@ -63,7 +62,6 @@ struct CustomerNotesView: View {
                             .background(.yellowHighlight)
                             .cornerRadius(8)
                         }
-                    }
                 }
                 .padding(.top,12)
                 HStack{
@@ -83,10 +81,6 @@ struct CustomerNotesView: View {
                         .stroke(.littleGrey, lineWidth: 1)
                 )
                 NotesView()
-                               
-                .listStyle(PlainListStyle())
-                .environment(\.defaultMinListRowHeight, 0) 
-
             }
             .padding(.horizontal,14)
             Spacer()

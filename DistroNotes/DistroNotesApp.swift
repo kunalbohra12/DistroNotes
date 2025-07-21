@@ -10,9 +10,10 @@ import SwiftUI
 @main
 struct DistroNotesApp: App {
     @StateObject private var router = Router()
+    @StateObject private var viewModel = NotesViewModel()
     var body: some Scene {
         WindowGroup {
-            ContentView(router: router)
+            ContentView(router: router, viewModel: viewModel)
         }
     }
 }
